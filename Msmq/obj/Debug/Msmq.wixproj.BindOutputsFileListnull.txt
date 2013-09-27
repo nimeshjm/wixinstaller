@@ -1,2 +1,0 @@
-D:\projects\poc\WixInstaller\Msmq\bin\Debug\Msmq.msi
-D:\projects\poc\WixInstaller\Msmq\bin\Debug\Msmq.wixpdb

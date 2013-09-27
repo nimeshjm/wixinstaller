@@ -1,6 +1,0 @@
-obj\Debug\Library.wixobj
-D:\projects\poc\WixInstaller\Msmq\bin\Debug\Msmq.wixpdb
-D:\projects\poc\WixInstaller\Msmq\bin\Debug\Msmq.msi
-obj\Debug\Msmq.wixproj.BindContentsFileListnull.txt
-obj\Debug\Msmq.wixproj.BindOutputsFileListnull.txt
-obj\Debug\Msmq.wixproj.BindBuiltOutputsFileListnull.txt
