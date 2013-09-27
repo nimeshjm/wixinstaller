@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:msmq="http://schemas.microsoft.com/wix/MsmqExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+
+  <Product Id="*" Name="msmq demo" Language="1033" Version="1.0.0.0" Manufacturer="Marks &amp; Spencer" UpgradeCode="32166D5E-93C3-46B4-AA3A-F0AAE0413C91">
+    <Package Id="*" InstallerVersion="200" Compressed="yes" InstallScope="perMachine" AdminImage="yes" InstallPrivileges="elevated" />
+    <Property Id="MSIUSEREALADMINDETECTION" Value="1" />
+    <Media Id="1" Cabinet="kioskprereq.cab" EmbedCab="yes" CompressionLevel="medium" />
+
+    <Property Id="dism" Value="dism.exe" />
+    
+    <Property Id="POWERSHELLEXE">
+      <RegistrySearch Id="POWERSHELLEXE"
+                      Type="raw"
+                      Root="HKLM"
+                      Key="SOFTWARE\Microsoft\PowerShell\1\ShellIds\Microsoft.PowerShell"
+                      Name="Path" />
+    </Property>
+
+    <!-- impersonate=no means run as local system-->
+    <CustomAction Id="InstallMSMQContainer"
+              Property="dism"
+              ExeCommand=" /online /enable-feature /featurename:MSMQ-Container /featurename:MSMQ-Server /featurename:MSMQ-ADIntegration /featurename:MSMQ-Multicast"
+              Return="check"
+              Impersonate="no"
+              Execute="oncePerProcess" />
+    
+    <CustomAction Id="RunLedPowerShellScript" 
+                  Property="POWERSHELLEXE"
+                  ExeCommand="-Version 2.0 -NoProfile -NonInteractive -InputFormat None -ExecutionPolicy Bypass -Command &quot;&amp; '[#MockScript.ps1]' ; exit $$($Error.Count)&quot;"
+                  Execute="deferred"
+                  Return="check" 
+                  Impersonate="no" />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+
+      <Component Id="CreateMessageQueuesComponent" Guid="C4BBEF3F-63A3-427E-A661-7A6E6BAFD543">
+
+        <util:User Id="UserEveryOne"
+                   CreateUser="no"
+                   Name="Everyone"
+                   />
+
+        <!--Create the queue for the Service Broker.-->
+        <msmq:MessageQueue
+            Id="ServiceBrokerOrderQueue"
+            Label="ServiceBrokerOrderQueue"
+            PathName=".\Private$\ServiceBrokerOrderQueue"
+            PrivLevel="none"
+            Journal="yes"
+            Transactional="no">
+          <msmq:MessageQueuePermission
+            Id="ServiceBrokerOrderQueue"
+            DeleteQueue="yes"
+            QueueGenericAll="yes"
+            ReceiveMessage="yes"
+            TakeQueueOwnership="yes"
+            User="UserEveryOne"
+            WriteMessage="yes"
+            />
+        </msmq:MessageQueue>
+
+      </Component>
+
+      <Component Id="TurnOnLed" Guid="66F9B687-AB35-41CC-9060-847E163C7683" KeyPath="yes">
+        <File Id="MockScript.ps1" Name="MockScript.ps1" Source="$(var.ProjectDir)MockScript.ps1" Vital="yes" />
+      </Component>
+      
+    </Directory>
+    <Feature Id="Complete" Level="1">
+      <ComponentRef Id="CreateMessageQueuesComponent" />
+      <ComponentRef Id="TurnOnLed" />
+    </Feature>
+    <InstallExecuteSequence>
+      <Custom Action="InstallMSMQContainer" After="InstallInitialize"/>
+      <Custom Action="RunLedPowerShellScript" After="InstallFiles"/>
+    </InstallExecuteSequence>
+  </Product>
+</Wix>
