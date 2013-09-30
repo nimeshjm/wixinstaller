@@ -17,6 +17,7 @@
     </Property>
 
     <Binary Id="WebSiteCA" SourceFile="$(var.SolutionDir)\DismLauncher\bin\x64\Debug\DismLauncher.CA.dll" />
+    <!--<Binary Id="WebSiteCA" SourceFile="$(var.DismLauncher.TargetPath)" />-->
 
     <CustomAction Id="InstallMSMQContainer"
                   BinaryKey="WebSiteCA" 
