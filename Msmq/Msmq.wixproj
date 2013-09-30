@@ -35,7 +35,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="MockScript.ps1" />
-    <Content Include="InstallMsmq.ps1" />
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" />
   <!--
